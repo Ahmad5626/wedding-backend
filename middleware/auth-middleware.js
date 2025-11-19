@@ -28,4 +28,18 @@ const authenticate = (req, res, next) => {
   }
 };
 
-module.exports = { authenticate };
+// Role check middleware
+const authorizeAdmin = (req, res, next) => {
+
+  console.log();
+  
+  if (req.user.role !== "admin") {
+    return res.status(403).json({
+      success: false,
+      message: "Access denied. Admins only!",
+    });
+  }
+  next();
+};
+
+module.exports = { authenticate,authorizeAdmin };

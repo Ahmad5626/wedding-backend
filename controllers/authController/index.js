@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const registerUser = async (req, res) => {
   try {
-    const { phone, fullName, email, password, registeredType,city, brandName, vendorType  } = req.body;
+    const { phone, fullName, email, password, registeredType,city, brandName, vendorType,role   } = req.body;
     if (!phone || !fullName || !email || !password ) {
       return res.status(400).send("All fields are required");
     }
@@ -25,7 +25,8 @@ const registerUser = async (req, res) => {
       registeredType,
       city,
       brandName,
-      vendorType
+      vendorType,
+      role
       
     });
 
@@ -59,7 +60,8 @@ const loginUser = async (req, res) => {
         id: user._id,
         fullName: user.fullName,
         email: user.email,
-        RegisteredType: user.registeredType,
+       registeredType: user.registeredType,
+        role: user.role,
         
        
       },
@@ -78,6 +80,8 @@ const loginUser = async (req, res) => {
           _id: user._id,
           fullName: user.fullName,
           userEmail: user.userEmail,
+          RegisteredType: user.registeredType,
+          role: user.role,
           
         },
       },
@@ -104,46 +108,46 @@ const logoutUser = async (req, res) => {
 };
 
 const updateUser = async (req, res) => {
-  const { id } = req.user;
-const { gender, dateOfBirth, State, Address, Pincode, maritalStatus, mobileNumber, district, PANCardNo,instituteName,
-  instituteBio,
-  instituteCategory,
-  Country,
-  websiteUrl,
-profileImage } = req.body;
-  try {
-    const updatedUser = await User.findByIdAndUpdate(
-      id,
-      {
-        gender,
-        dateOfBirth,
-        State,
-        Address,
-        Pincode,
-        maritalStatus,
-        mobileNumber,
-        district,
-        PANCardNo,
-        instituteName,
-        instituteBio,
-        instituteCategory,
-        Country,
-        websiteUrl,
-        profileImage
-      },
-      { new: true ,runValidators: true}
-    );
-    
+   try {
+    const userId = req.user?.id || req.params.id;
+
+    const updatedData = {
+      fullName: req.body.fullName,
+      brandName: req.body.brandName,
+      category: req.body.category,
+      contactPersonName: req.body.contactPersonName,
+      additionalEmail: req.body.additionalEmail,
+      contactNumbers: req.body.contactNumbers,
+      whatsappNumber: req.body.whatsappNumber,
+      websiteLink: req.body.websiteLink,
+      facebookUrl: req.body.facebookUrl,
+      instagramUrl: req.body.instagramUrl,
+      youtubeUrl: req.body.youtubeUrl,
+      additionalInfo: req.body.additionalInfo,
+      city: req.body.city,
+      role: req.body.role || "user",
+      profileImage: req.body.profileImage,
+    };
+
+    const user = await User.findByIdAndUpdate(userId, updatedData, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
     res.status(200).json({
       success: true,
-      message: "User updated successfully",
-      data: updatedUser,
+      message: "Profile updated successfully",
+      data: user,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Update error:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to update user",
+      message: "Error updating profile",
       error: error.message,
     });
   }
@@ -168,7 +172,25 @@ const getUsers = async (req, res) => {
     });
   }
 };
+const chekcAdmin =async (req,res)=>{
+  try {
+    const {id}  = req.user;
 
+    
+  const data = await User.findOne({_id:id})
+  res.status(200).json({
+    success: true,
+    message: "Users fetched successfully",
+    data: data,
+  });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch users",
+      error: error.message,
+    })
+  }
+}
 const chekcAuthData =async (req,res)=>{
   try {
     const {id}  = req.user;
@@ -319,6 +341,6 @@ const facebookLogin = async (req, res) => {
     res.status(401).json({ message: "Facebook login failed", error: err.message });
   }
 };
-module.exports = { registerUser, loginUser,updateUser,getUsers,deleteUser,chekcAuthData ,googleLogin,facebookLogin};
+module.exports = { registerUser, loginUser,updateUser,getUsers,deleteUser,chekcAuthData ,googleLogin,facebookLogin,chekcAdmin,logoutUser};
 
 
