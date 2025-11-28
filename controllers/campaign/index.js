@@ -1,7 +1,7 @@
 const Campaign = require('../../models/Campaign');
 
 const createCampaign = async (req, res) => {
-    const { title, description, image, video, price, address,vendorType ,createdBy} = req.body;
+    const { title, description, image, video, price, address,vendorType ,createdBy,cities} = req.body;
    
     try {
         const campaign = await Campaign.create({
@@ -12,6 +12,7 @@ const createCampaign = async (req, res) => {
             price,
             vendorType,
             address,
+            cities,
             createdBy
         });
         res.status(201).json({

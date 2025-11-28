@@ -31,8 +31,9 @@ const CampaignSchema = new mongoose.Schema({
   vendorType: String,
   image: [],
   video: [],
-  price: String,
+  price: Number,
   address: String,
+  cities :[],
   status: {
     type: String,
     enum: ['Pending', 'Active', 'Reject', 'Terminate'],
